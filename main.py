@@ -35,19 +35,19 @@ async def start(update, context):
 
 
 async def register(update, context):
-    pass
+    await update.message.reply_text(f"Здесь будет окно регистрации")
 
 
 async def auth(update, context):
-    pass
+    await update.message.reply_text(f"Здесь будет окно авторизации")
 
 
 async def all_hours(update, context):
-    pass
+    await update.message.reply_text(f"Здесь будет выдаваться общая/часто используемая информация")
 
 
 async def charts(update, context):
-    pass
+    await update.message.reply_text(f"Здесь будут красивый графики")
 
 
 def main():
