@@ -47,7 +47,7 @@ async def all_hours(update, context):
 
 
 async def charts(update, context):
-    await update.message.reply_text(f"Здесь будут красивый графики")
+    await update.message.reply_text(f"Здесь будут красивые графики")
 
 
 def main():
