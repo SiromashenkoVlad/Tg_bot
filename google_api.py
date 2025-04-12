@@ -39,15 +39,15 @@ def authenticate_google_calendar():
     return creds
 
 
-def get_all_user_events(service, max_results=10000):
+def get_all_user_events(service, time_start='1970-01-01T00:00:00Z',
+                        time_end=datetime.datetime.utcnow().isoformat() + 'Z'):
+    # time_start и time_end указываются в формате datetime
+
     """Получает все события пользователя из первичного календаря"""
+
     # Получаем ID первичного календаря пользователя
     primary_calendar = service.calendars().get(calendarId='primary').execute()
     calendar_id = primary_calendar['id']
-
-    # Устанавливаем временной диапазон (все события до текущего момента)
-    now = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z' указывает на UTC время
-    time_min = '1970-01-01T00:00:00Z'  # Начало Unix эпохи
 
     all_events = []
     page_token = None
@@ -55,9 +55,8 @@ def get_all_user_events(service, max_results=10000):
     while True:
         events_result = service.events().list(
             calendarId=calendar_id,
-            timeMin=time_min,
-            timeMax=now,
-            maxResults=2500,  # Максимальное количество событий за запрос
+            timeMin=time_start,
+            timeMax=time_end,
             singleEvents=True,
             orderBy='startTime',
             pageToken=page_token,
@@ -71,18 +70,7 @@ def get_all_user_events(service, max_results=10000):
         if not page_token:
             break
 
-        if len(all_events) >= max_results:
-            print(f"Достигнуто максимальное количество событий: {max_results}")
-            break
-
-    # Фильтруем только события, созданные пользователем
-    user_events = [
-        event for event in all_events
-        if event.get('creator', {}).get('self', False) or
-           event.get('organizer', {}).get('self', False)
-    ]
-
-    return user_events
+    return all_events
 
 
 def format_event_details(event):
