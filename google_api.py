@@ -13,6 +13,21 @@ SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 CREDENTIALS_FILE = 'credentials.json'
 TOKEN_FILE = 'token.pickle'
 
+# Цвета календаря (стандартные цвета Google Calendar)
+COLOR_MAP = {
+    '1': {'name': 'Lavender', 'hex': '#7986cb'},
+    '2': {'name': 'Sage', 'hex': '#33b679'},
+    '3': {'name': 'Grape', 'hex': '#8e24aa'},
+    '4': {'name': 'Flamingo', 'hex': '#e67c73'},
+    '5': {'name': 'Banana', 'hex': '#f6c026'},
+    '6': {'name': 'Tangerine', 'hex': '#f5511d'},
+    '7': {'name': 'Peacock', 'hex': '#039be5'},
+    '8': {'name': 'Graphite', 'hex': '#616161'},
+    '9': {'name': 'Blueberry', 'hex': '#3f51b5'},
+    '10': {'name': 'Basil', 'hex': '#0b8043'},
+    '11': {'name': 'Tomato', 'hex': '#d60000'},
+}
+
 
 def authenticate_google_calendar():
     """Аутентификация в Google Calendar API"""
@@ -85,6 +100,10 @@ def format_event_details(event):
     except:
         start_datetime = end_datetime = None
 
+    # Получаем информацию о цвете
+    color_id = event.get('colorId', None)
+    color_info = COLOR_MAP.get(color_id, {'name': 'Default', 'hex': '#039be5'})  # Синий по умолчанию
+
     details = {
         'id': event['id'],
         'title': event.get('summary', 'Без названия'),
@@ -101,6 +120,9 @@ def format_event_details(event):
         'organizer': event.get('organizer', {}).get('email', ''),
         'recurrence': bool(event.get('recurrence')),
         'recurring_event_id': event.get('recurringEventId', ''),
+        'color_id': color_id,
+        'color_name': color_info['name'],
+        'color_hex': color_info['hex'],
     }
 
     return details
@@ -113,6 +135,7 @@ def print_events(events):
         print(f"\nСобытие #{i}")
         print(f"ID: {details['id']}")
         print(f"Название: {details['title']}")
+        print(f"Цвет: {details['color_name']} (ID: {details['color_id'] or 'default'}, HEX: {details['color_hex']})")
         print(f"Дата создания: {details['created']}")
         print(f"Последнее обновление: {details['updated']}")
         print(f"Начало: {details['start']} {'(весь день)' if details['is_all_day'] else ''}")
@@ -136,7 +159,8 @@ def save_to_csv(events, filename='google_calendar_events.csv'):
     fieldnames = [
         'id', 'title', 'description', 'location', 'status',
         'created', 'updated', 'start', 'end', 'is_all_day',
-        'attendees', 'creator', 'organizer', 'recurrence', 'recurring_event_id'
+        'attendees', 'creator', 'organizer', 'recurrence', 'recurring_event_id',
+        'color_id', 'color_name', 'color_hex'
     ]
 
     with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
